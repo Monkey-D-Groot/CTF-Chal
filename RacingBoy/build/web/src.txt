@@ -1,0 +1,74 @@
+public class Share {
+    public static ArrayList <String> code = new ArrayList<>();
+    public Share(){
+        code.add("RTX-2080");
+        code.add("ADN-04x");
+        code.add("xxxxxx");
+        code.add("yyyyyy");
+    }
+}
+
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        HttpSession session = request.getSession();
+        String money = (String) session.getAttribute("money");
+        String booked = (String) session.getAttribute("booked");
+        String usedCode = (String) session.getAttribute("usedCode");
+        String id = (String) request.getParameter("id");
+        String code = (String) request.getParameter("code");
+        if (code.equals("")) {
+            code = "SVATTT";
+        }
+        if (money == null || money.equals("")) {
+            money = "100";
+        }
+        if (booked == null || booked.equals("")) {
+            booked = "";
+        }
+        if (usedCode == null || usedCode.equals("")) {
+            usedCode = "";
+        }
+        try {
+            int i = Integer.parseInt(id);
+            if (!(i >= 1 && i <= 4)) {
+                throw new NumberFormatException();
+            }
+        } catch (Exception e) {
+            id = "1";
+        }
+        try {
+            int price = 35;
+            if (!usedCode.contains(code)) { 
+                for (String c : Share.code) {
+                    if (c.matches(code)) {
+                        price -= 10;
+                        usedCode += code + ',';
+                        break;
+                    }
+                }
+                if (id != null && "1234".contains(id)) {
+                    int m = Integer.parseInt(money);
+                    if (m >= price) {
+                        money = "" + (Integer.parseInt(money) - price);
+                        booked += id;
+                        if (booked.equals("1234")) {
+                            request.setAttribute("mess", "SVATTT{GTX-1060}");
+                        } else {
+                            request.setAttribute("mess", "OK!");
+                        }
+                    } else {
+                        request.setAttribute("mess", "Not enough money!");
+                    }
+
+                }
+            } else {
+                request.setAttribute("mess", "Code was used!");
+            }
+        } catch (Exception e) {
+            request.setAttribute("mess", "Error");
+        }
+        session.setAttribute("money", money);
+        session.setAttribute("booked", booked);
+        session.setAttribute("usedCode", usedCode);
+        getServletContext().getRequestDispatcher("/index.jsp").forward(request, response);
+    }
